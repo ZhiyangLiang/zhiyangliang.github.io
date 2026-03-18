@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive viewer for Building A in 3dgs.">
+  <title>Mega-Structure Building A | 3dgs</title>
+  <link rel="icon" href="../img/zyliang_icon.png">
+  <link rel="stylesheet" href="./style.css?v=20260318-14">
+</head>
+<body class="viewer-page">
+  <header class="viewer-header">
+    <a class="back-link" href="./">Back to the Scene Gallery</a>
+    <div class="viewer-copy">
+      <h1>Mega-Structure Building A</h1>
+      <p class="viewer-note">Drag to orbit, scroll to zoom, and explore the scene.</p>
+    </div>
+  </header>
+
+  <dialog open id="progress-dialog" class="progress-dialog">
+    <p class="progress-title">Loading scene...</p>
+    <p class="progress-note">The viewer will appear automatically when loading is complete.</p>
+    <progress max="100" id="progress-indicator"></progress>
+  </dialog>
+
+  <canvas id="canvas"></canvas>
+  <script src="BuildingA.js?v=20260318-1" type="module"></script>
+</body>
+</html>

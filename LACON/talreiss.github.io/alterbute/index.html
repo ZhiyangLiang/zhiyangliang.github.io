@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="We introduce Alterbute, a diffusion-based method for editing an object's intrinsic attributes -- color, texture, material, and shape -- while preserving its perceived identity and scene context.">
+  <meta name="keywords" content="Image Editing, Intrinsic Attribute Editing">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alterbute: Editing Intrinsic Attributes of Objects in Images</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <!-- <link rel="stylesheet" href="./static/css/bulma-slider.min.css"> -->
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  <link rel="icon" href="static/images/favicon.ico">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script src="static/js/bulma-carousel.min.js"></script>
+  <script src="static/js/bulma-slider.min.js"></script>
+  <script src="static/js/index.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+    <!-- Cloudflare Web Analytics -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "73c3ade501b643c2a42577d2bcc3456b"}'></script>
+    <!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-2 publication-title"><i>Alterbute</i>: Editing Intrinsic Attributes of Objects in Images</h1>
+          <div class="is-size-5 publication-authors">
+            <div class="author-row">
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=sgMIT6EAAAAJ&hl=en">Tal Reiss</a><sup>1, 2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=VKOTwxsAAAAJ&hl=en">Daniel Winter</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=ZTRz7REAAAAJ&hl=en&oi=sra">Matan Cohen</a><sup>1</sup>
+            </span>
+            </div>
+            <div class="author-row">
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=NIRv_L8AAAAJ&hl=en">Alex Rav-Acha</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.co.il/citations?user=Zi5KiDsAAAAJ&hl=en">Yael Pritch</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://faculty.runi.ac.il/arik/site/index.asp">Ariel Shamir</a><sup>* 1, 3</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://www.cs.huji.ac.il/~yedid/">Yedid Hoshen</a><sup>* 1, 2</sup>
+            </span>
+          </div>
+        </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Google, <sup>2</sup>The Hebrew University of Jerusalem, <sup>3</sup>Reichman University</span>
+          </div>
+          <div class="is-size-6 publication-authors">
+            <span class="author-block"><sup>*</sup>Indicates Equal Advising</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2601.10714"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2601.10714"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Video Link. -->
+              <!-- <span class="link-block">
+                <a href="https://www.youtube.com/watch?v=B00wKI6chkw"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span> -->
+              <!-- Code Link. -->
+              <!-- Dataset Link. -->
+              <!-- <span class="link-block">
+                <a href="https://github.com/google/nerfies/releases/tag/0.1"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="far fa-images"></i>
+                  </span>
+                  <span>Data</span>
+                  </a>
+                </span> -->
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!--/ Teaser Carousel -->
+<section class="hero teaser is-light">
+  <div class="container is-max-desktop">
+    <div class="hero-body" width="100%">
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item">
+            <h2 class="subtitle has-text-centered">Material: Garlic</h2>
+            <img src="static/images/inputs/3_toy_monster_leopard.png" alt="original">
+           <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/3_toy_monster_garlic.png" alt="Overlay 1">
+          </div>
+        </div>
+        <div class="item">
+            <h2 class="subtitle has-text-centered">Material: Transparent Glass</h2>
+            <img src="static/images/inputs/4_can_transparent_glass.png" alt="original">
+           <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/4_can_transparent_glass.png" alt="Overlay 1">
+          </div>
+        </div>
+        <div class="item">
+            <h2 class="subtitle has-text-centered">Material: Grass</h2>
+            <img src="static/images/inputs/7_sloth_toy_grass.png" alt="original">
+           <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/7_sloth_toy_grass.png" alt="Overlay 1">
+          </div>
+        </div>
+        <div class="item">
+          <h2 class="subtitle has-text-centered">Shape: Jeep</h2>
+          <img src="static/images/inputs/27_beetle_car_giant_jeep.png" alt="original">
+          <div class="carousel-overlay" data-src="./static/images/alterbute/27_beetle_car_giant_jeep.png">
+          </div>
+        </div>
+        <div class="item">
+          <h2 class="subtitle has-text-centered">Shape: Peace Sign</h2>
+          <img src="static/images/inputs/1_robotoy_peace_sign.png" alt="original">
+          <div class="carousel-overlay" data-src="./static/images/alterbute/1_robotoy_peace_sign.png">
+          </div>
+        </div>
+        <div class="item">
+          <h2 class="subtitle has-text-centered">Shape: Waving Hello</h2>
+          <img src="static/images/inputs/12_statue_danicohen_waives_hello.png" alt="original">
+          <div class="carousel-overlay" data-src="./static/images/alterbute/12_statue_danicohen_waives_hello.png">
+          </div>
+        </div>
+        <div class="item">
+            <h2 class="subtitle has-text-centered">Texture: Giraffe</h2>
+            <img src="static/images/inputs/30_pumpkin_giraffe_pattern.png" alt="original">
+           <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/30_pumpkin_giraffe_pattern.png" alt="Overlay 1">
+          </div>
+        </div>
+        <div class="item">
+            <h2 class="subtitle has-text-centered">Texture: Rainbow</h2>
+            <img src="static/images/inputs/13_omri_toy_rainbow.png" alt="original">
+           <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/13_omri_toy_rainbow.png" alt="Overlay 1">
+          </div>
+        </div>
+        <div class="item">
+            <h2 class="subtitle has-text-centered">Texture: Neon Lights</h2>
+            <img src="static/images/inputs/16_cat_colorful_neon_lights.png" alt="original">
+           <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/16_cat_colorful_neon_lights.png" alt="Overlay 1">
+          </div>
+        </div>
+        <div class="item">
+            <h2 class="subtitle has-text-centered">Color: Cyan</h2>
+            <img src="static/images/inputs/19_mug_cyan.png" alt="original">
+           <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/19_mug_cyan.png" alt="Overlay 1">
+          </div>
+        </div>
+        <div class="item">
+            <h2 class="subtitle has-text-centered">Color: Green</h2>
+            <img src="static/images/inputs/18_bus_green.png" alt="original">
+           <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/18_bus_green.png" alt="Overlay 1">
+          </div>
+        </div>
+        <div class="item">
+            <h2 class="subtitle has-text-centered">Color: Maroon</h2>
+            <img src="static/images/inputs/10_frog_maroon.png" alt="original">
+           <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/10_frog_maroon.png" alt="Overlay 1">
+          </div>
+        </div>
+        <!-- <div class="item">
+            <h2 class="subtitle has-text-centered">Third image description.</h2>
+            <img src="./static/images/inputs/3_toy_monster_leopard.png" alt="original">
+           <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/3_toy_monster_yoga.png" alt="Overlay 1">
+          </div>
+        </div>
+        <div class="item">
+          <h2 class="subtitle has-text-centered">Third image description.</h2>
+          <img src="./static/images/inputs/12_statue_danicohen_waives_hello.png" alt="original">
+          <div class="carousel-overlay" data-src="./static/images/alterbute/12_statue_danicohen_polka_dot.png">
+          </div>
+        </div>
+        <div class="item">
+          <h2 class="subtitle has-text-centered">Third image description.</h2>
+          <img src="./static/images/inputs/3_toy_mo" alt="original">
+          <div class="carousel-overlay" data-src="./static/images/alterbute/12_statue_danicohen_waives_hello.png">
+          </div>
+        </div> -->
+      </div>
+      <div class="note">
+          <svg class="svg-icon" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="TouchAppIcon">
+            <path d="M9 11.24V7.5C9 6.12 10.12 5 11.5 5S14 6.12 14 7.5v3.74c1.21-.81 2-2.18 2-3.74C16 5.01 13.99 3 11.5 3S7 5.01 7 7.5c0 1.56.79 2.93 2 3.74m9.84 4.63-4.54-2.26c-.17-.07-.35-.11-.54-.11H13v-6c0-.83-.67-1.5-1.5-1.5S10 6.67 10 7.5v10.74c-3.6-.76-3.54-.75-3.67-.75-.31 0-.59.13-.79.33l-.79.8 4.94 4.94c.27.27.65.44 1.06.44h6.79c.75 0 1.33-.55 1.44-1.28l.75-5.27c.01-.07.02-.14.02-.2 0-.62-.38-1.16-.91-1.38"></path>
+          </svg>
+          <span>Click on any image to see results</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!--/Abstract -->
+<section id="abstract" class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column container is-three-fifths">
+        <h2 class="title is-2">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+              We introduce <i>Alterbute</i>, a diffusion-based method for editing an object's <i>intrinsic</i> attributes in an image. We allow changing color, texture, material, and even the shape of an object, while preserving its perceived identity and scene context. Existing approaches either rely on unsupervised priors that often fail to preserve identity or use overly restrictive supervision that prevents meaningful intrinsic variations. Our method relies on: (i) a relaxed training objective that allows the model to change both intrinsic and extrinsic attributes conditioned on an identity reference image, a textual prompt describing the target intrinsic attributes, and a background image and object mask defining the extrinsic context. At inference, we restrict extrinsic changes by reusing the original background and object mask, thereby ensuring that only the desired intrinsic attributes are altered; (ii) <i>Visual Named Entities</i> (VNEs) – fine-grained visual identity categories  (e.g., "Porsche 911 Carrera") that group objects sharing identity-defining features while allowing variation in intrinsic attributes. We use a vision-language model to automatically extract VNE labels and intrinsic attribute descriptions from a large public image dataset, enabling scalable, identity-preserving supervision. <i>Alterbute</i> outperforms existing methods on identity-preserving object intrinsic attribute editing.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+    <!-- Paper video. -->
+    <!-- <div class="columns is-centered has-text-centered">
+      <div class="column is-three-fifths">
+        <h2 class="title is-3">Video</h2>
+        <div class="publication-video">
+          <iframe width="1319" height="742" src="https://www.youtube.com/embed/B00wKI6chkw" title="LightLab: Controlling Light Sources in Images with Diffusion Models" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div> -->
+    <!--/ Paper video. -->
+  </div>
+</section>
+
+
+<!--/Intrinsic Edits -->
+<section class="hero section is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <!-- Material Edits. -->
+      <div class="column">
+        <!-- <div class="content"> -->
+          <h2 class="title is-3 centered-text">Material Edits</h2>
+          <div id="intensityCarousel" class="carousel slide" data-bs-theme="dark" data-touch="false">
+            <div class="carousel-inner">
+              <div class="content carousel-item active" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/11_cat_danicohen_marble.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/11_cat_danicohen_marble.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Material: Marble</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/20_wrangler_fire.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/20_wrangler_fire.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Material: Fire</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/13_omri_toy_ice.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/13_omri_toy_ice.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Material: Ice</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/27_beetle_car_mirror.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/27_beetle_car_mirror.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Material: Mirror</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/26_vintage_car_pink_wool.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/26_vintage_car_pink_wool.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Material: Pink Wool</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/19_mug_lego.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/19_mug_lego.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Material: Lego</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/14_clock_rinon_granite.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/14_clock_rinon_granite.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Material: Granite</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/10_frog_crystal.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/10_frog_crystal.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Material: Crystal</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/6_bowl_cardboard.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/6_bowl_cardboard.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Material: Cardboard</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/3_toy_monster_oak.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/3_toy_monster_oak.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Material: Oak</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/23_armchair_fur.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/23_armchair_fur.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Material: Fur</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/13_omri_toy_cork.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/13_omri_toy_cork.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Material: Cork</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button class="carousel-control-prev my_carousel-control" type="button" data-bs-target="#intensityCarousel" data-bs-slide="prev" style="height:30%; width:60px; top:50%; transform: translateY(-50%)">
+              <span class="carousel-control-prev-icon white_carousel-control" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next my_carousel-control" type="button" data-bs-target="#intensityCarousel" data-bs-slide="next" style="height:30%; width:60px; top:50%; transform: translateY(-50%)">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+      </div>
+      <!--/ Material Edits. -->
+
+      <!-- Color Edits. -->
+      <div class="column">
+        <h2 class="centered-text title is-3">Color Edits</h2>
+        <div class="columns is-centered">
+          <div class="column">
+            <div id="colorCarousel" class="carousel slide" data-bs-theme="dark" data-touch="false">
+              <div class="carousel-inner">
+                <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                      <div class="item">
+                        <img src="static/images/inputs/2_rccar_white.png" alt="original">
+                        <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/2_rccar_white.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Color: White</h4>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                      <div class="item">
+                        <img src="static/images/inputs/9_backpack_orange.png" alt="original">
+                        <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/9_backpack_orange.png" alt="Overlay 1">
+                      </div>
+                      <h4 class="subtitle has-text-centered">Color: Orange</h4>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                        <div class="item">
+                          <img src="static/images/inputs/1_robotoy_teal.png" alt="original">
+                          <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/1_robotoy_teal.png" alt="Overlay 1">
+                        </div>
+                        <h4 class="subtitle has-text-centered">Color: Teal</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                        <div class="item">
+                          <img src="static/images/inputs/8_dog_black.png" alt="original">
+                          <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/8_dog_black.png" alt="Overlay 1">
+                        </div>
+                        <h4 class="subtitle has-text-centered">Color: Black</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                        <div class="item">
+                          <img src="static/images/inputs/12_statue_danicohen_magenta.png" alt="original">
+                          <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/12_statue_danicohen_magenta.png" alt="Overlay 1">
+                        </div>
+                        <h4 class="subtitle has-text-centered">Color: Magenta</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                        <div class="item">
+                          <img src="static/images/inputs/4_can_red.png" alt="original">
+                          <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/4_can_red.png" alt="Overlay 1">
+                        </div>
+                        <h4 class="subtitle has-text-centered">Color: Red</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                        <div class="item">
+                          <img src="static/images/inputs/3_toy_monster_leopard.png" alt="original">
+                          <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/3_toy_monster_leopard.png" alt="Overlay 1">
+                        </div>
+                        <h4 class="subtitle has-text-centered">Color: Leopard</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="demo_carousel_item content carousel-item active" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                        <div class="item">
+                          <img src="static/images/inputs/28_banana_truck_green_red.png" alt="original">
+                          <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/28_banana_truck_green_red.png" alt="Overlay 1">
+                        </div>
+                        <h4 class="subtitle has-text-centered">Color: Green and Red</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button class="carousel-control-prev my_carousel-control" type="button" data-bs-target="#colorCarousel" data-bs-slide="prev" style="height:30%; width:60px; top:50%; transform: translateY(-50%)">
+                <span class="carousel-control-prev-icon white_carousel-control" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next my_carousel-control" type="button" data-bs-target="#colorCarousel" data-bs-slide="next" style="height:30%; width:60px; top:50%; transform: translateY(-50%)">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--/ Color Edits. -->
+    </div>
+  </div>
+  
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <!-- Shape Edits. -->
+      <div class="column">
+        <!-- <div class="content"> -->
+          <h2 class="title is-3 centered-text">Shape Edits</h2>
+          <div id="ShapeCarousel" class="carousel slide" data-bs-theme="dark" data-touch="false">
+            <div class="carousel-inner">
+              <div class="content carousel-item active" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/22_armchair_sofa.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/22_armchair_sofa.png" alt="Overlay 1">
+                      </div>
+                    </div>
+                    <h4 class="subtitle has-text-centered">Shape: Three seat sofa</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/13_omri_toy_raise_hand_muscles.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/13_omri_toy_raise_hand_muscles.png" alt="Overlay 1">
+                      </div>
+                    </div>
+                    <h4 class="subtitle has-text-centered">Shape: Raising hand muscles</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/23_armchair_three_seats.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/23_armchair_three_seats.png" alt="Overlay 1">
+                      </div>
+                    </div>
+                    <h4 class="subtitle has-text-centered">Shape: Three seat sofa</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                    <div class="item">
+                      <img src="static/images/inputs/14_clock_rinon_squared.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/14_clock_rinon_squared.png" alt="Overlay 1">
+                      </div>
+                    </div>
+                    <h4 class="subtitle has-text-centered">Shape: Square</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                      <div class="item">
+                      <img src="static/images/inputs/25_squared_table_oval.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/25_squared_table_oval.png" alt="Overlay 1">
+                      </div>
+                    </div>
+                    <h4 class="subtitle has-text-centered">Shape: Round</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                      <div class="item">
+                      <img src="static/images/inputs/26_vintage_car_open_engine_hood.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/26_vintage_car_open_engine_hood.png" alt="Overlay 1">
+                      </div>
+                    </div>
+                    <h4 class="subtitle has-text-centered">Shape: Opened engine hood</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                      <div class="item">
+                      <img src="static/images/inputs/7_sloth_toy_namaste.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/7_sloth_toy_namaste.png" alt="Overlay 1">
+                      </div>
+                    </div>
+                    <h4 class="subtitle has-text-centered">Shape: Namaste</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                      <div class="item">
+                      <img src="static/images/inputs/8_dog_sits_raise_paws.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/8_dog_sits_raise_paws.png" alt="Overlay 1">
+                      </div>
+                    </div>
+                    <h4 class="subtitle has-text-centered">Shape: Sitting and raising a paw</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                      <div class="item">
+                      <img src="static/images/inputs/3_toy_monster_raising_hands.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/3_toy_monster_raising_hands.png" alt="Overlay 1">
+                      </div>
+                    </div>
+                    <h4 class="subtitle has-text-centered">Shape: Raising hands</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                <div class = "inner-div">
+                  <div class = "centered-div">
+                      <div class="item">
+                      <img src="static/images/inputs/3_toy_monster_leopard.png" alt="original">
+                      <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/3_toy_monster_yoga.png" alt="Overlay 1">
+                      </div>
+                    </div>
+                    <h4 class="subtitle has-text-centered">Shape: Yoga</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button class="carousel-control-prev my_carousel-control" type="button" data-bs-target="#ShapeCarousel" data-bs-slide="prev" style="height:30%; width:60px; top:50%; transform: translateY(-50%)">
+              <span class="carousel-control-prev-icon white_carousel-control" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next my_carousel-control" type="button" data-bs-target="#ShapeCarousel" data-bs-slide="next" style="height:30%; width:60px; top:50%; transform: translateY(-50%)">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+      </div>      
+      <!--/ Shape Edits. -->
+
+      <!-- Texture Edits. -->
+      <div class="column">
+        <h2 class="centered-text title is-3">Texture Edits</h2>
+        <div class="columns is-centered">
+          <div class="column">
+            <div id="ambientCarousel" class="carousel slide" data-bs-theme="dark" data-touch="false">
+              <div class="carousel-inner">
+                <div class="content carousel-item active" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                      <div class="item">
+                        <img src="static/images/inputs/12_statue_danicohen_clay.png" alt="original">
+                        <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/12_statue_danicohen_polka_dot.png" alt="Overlay 1">
+                        </div>
+                        <h4 class="subtitle has-text-centered">Texture: Polka Dot</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                      <div class="item">
+                        <img src="static/images/inputs/1_robotoy_zebra.png" alt="original">
+                        <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/1_robotoy_zebra.png" alt="Overlay 1">
+                        </div>
+                        <h4 class="subtitle has-text-centered">Texture: Zebra</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                      <div class="item">
+                        <img src="static/images/inputs/3_toy_monster_leopard.png" alt="original">
+                        <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/3_toy_monster_leopard.png" alt="Overlay 1">
+                        </div>
+                        <h4 class="subtitle has-text-centered">Texture: Leopard</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                      <div class="item">
+                        <img src="static/images/inputs/27_beetle_car_flames.png" alt="original">
+                        <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/27_beetle_car_flames.png" alt="Overlay 1">
+                        </div>
+                        <h4 class="subtitle has-text-centered">Texture: Flames</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                      <div class="item">
+                        <img src="static/images/inputs/23_armchair_graffiti.png" alt="original">
+                        <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/23_armchair_graffiti.png" alt="Overlay 1">
+                        </div>
+                        <h4 class="subtitle has-text-centered">Texture: Graffiti</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                      <div class="item">
+                        <img src="static/images/inputs/2_rccar_zigzag_white_stripes.png" alt="original">
+                        <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/2_rccar_zigzag_white_stripes.png" alt="Overlay 1">
+                        </div>
+                        <h4 class="subtitle has-text-centered">Texture: White Stripes</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="content carousel-item" data-bs-pause="hover" data-bs-interval="99999999">
+                  <div class = "inner-div">
+                    <div class = "centered-div">
+                      <div class="item">
+                        <img src="static/images/inputs/15_frog_statue_tie_dye.png" alt="original">
+                        <div id="nadav" class="carousel-overlay" data-src="./static/images/alterbute/15_frog_statue_tie_dye.png" alt="Overlay 1">
+                        </div>
+                        <h4 class="subtitle has-text-centered">Texture: Tie Dye</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button class="carousel-control-prev my_carousel-control" type="button" data-bs-target="#ambientCarousel" data-bs-slide="prev" style="height:30%; width:60px; top:50%; transform: translateY(-50%)">
+                <span class="carousel-control-prev-icon white_carousel-control" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next my_carousel-control" type="button" data-bs-target="#ambientCarousel" data-bs-slide="next" style="height:30%; width:60px; top:50%; transform: translateY(-50%)">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--/ Texture Edits. -->
+    </div>
+    <div class="note">
+          <svg class="svg-icon" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="TouchAppIcon">
+            <path d="M9 11.24V7.5C9 6.12 10.12 5 11.5 5S14 6.12 14 7.5v3.74c1.21-.81 2-2.18 2-3.74C16 5.01 13.99 3 11.5 3S7 5.01 7 7.5c0 1.56.79 2.93 2 3.74m9.84 4.63-4.54-2.26c-.17-.07-.35-.11-.54-.11H13v-6c0-.83-.67-1.5-1.5-1.5S10 6.67 10 7.5v10.74c-3.6-.76-3.54-.75-3.67-.75-.31 0-.59.13-.79.33l-.79.8 4.94 4.94c.27.27.65.44 1.06.44h6.79c.75 0 1.33-.55 1.44-1.28l.75-5.27c.01-.07.02-.14.02-.2 0-.62-.38-1.16-.91-1.38"></path>
+          </svg>
+          <span>Click on any image to see results</span>
+        </div>
+      </div>
+  </div>
+</section>
+
+<!-- Visual Named Entities. -->
+<section id="VisualNamedEntities" class="hero section">
+  <div class="container is-max-desktop has-text-centered">
+    <h2 class="title is-2">Visual Named Entity (VNE)</h2>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths has-text-justified">
+        <!-- <img src="./static/images/psotProcessing.png" class="approach-img" loading="lazy" alt="VNE"> -->
+        <p>
+        Visual Named Entities (VNEs) are fine-grained visual identity categories (e.g., "Porsche 911 Carrera", "iPhone 16 Pro") that reflect how people naturally refer to specific object types. Unlike broad categories (e.g., "car"), which are too coarse and permit excessive variation that conflicts with our intuitive sense of identity, or instance-level identifiers, which are overly restrictive and allow minimal variation, VNEs strike a practical balance. Specifically, VNEs group visually similar objects sharing a common semantic label, permitting variations in intrinsic and extrinsic attributes while preserving identity.
+        </p>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths has-text-justified">
+        <img src="static/images/vne.png" loading="lazy" class="VNE-img" alt="VNE">
+        <p>
+          <br>We use Gemini to assign textual VNE labels to objects detected in OpenImages. VNE objects (e.g., "Porsche 911 Carrera") are grouped into VNE clusters, while unlabeled instances are filtered out. Example VNE clusters are shown on the right.
+        </p>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths has-text-justified">
+        <img src="static/images/intrinsic_labels.jpg" loading="lazy" class="labels-img" alt="labels">
+        <p>
+          <br>For each VNE-labeled object, we additionally prompt Gemini to extract intrinsic attribute descriptions, which serve as textual prompts during training.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Approach. -->
+<section id="Approach" class="hero section is-light">
+  <div class="container is-max-desktop has-text-centered">
+    <h2 class="title is-2">Approach</h2>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths has-text-justified">
+        <!-- <h2 class="subtitle has-text-centered">Training</h2> -->
+        <img src="static/images/train.jpg" class="training-img" loading="lazy" alt="training">
+        <p>
+            <br><i>Alterbute</i> fine-tunes a diffusion model for text-guided intrinsic attribute editing. Inputs are arranged in a 1 x 2 image grid. The left half contains the noisy latent of the target image, while the right half contains a reference image sampled from the same VNE cluster. The model is conditioned on this reference image, a textual prompt describing the desired intrinsic attributes, a background image, and a binary object mask (both represented as grids). The diffusion loss is applied only to the left half to focus the learning on the edited region.
+        </p>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths has-text-justified">
+        <img src="static/images/inference.jpg" loading="lazy" class="inference-img" alt="inference">
+        <p>
+          <br>Using the same architecture (grid omitted for clarity), <i>Alterbute</i> edits the input image directly by reusing its original background and mask. For color, texture, or material edits, we use precise segmentation masks (top). For shape edits where the target geometry is unknown, we use coarse bounding-box masks (bottom).
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+  <!-- <div class="container is-max-desktop">
+    <div class="column">
+      <h2 class="centered-text title is-3">Physically Plausible Lighting</h2>
+      <p>
+        <b>Left.</b> The input sequence was created by capturing photographs of a turned-off lamp rotated around the polygon dog.
+        <b>Middle, Right.</b> Inference results of our method and a zoom-in on the dog.
+        Note how self occlusions on the different faces, and dogs shadow match the lamps position and angle.
+      </p>
+        <div class="has-text-centered header-container">
+          <h5>Input</h5> <h5>Result</h5> <h5>Zoom-In</h5>
+        </div>
+      <video id="replay-video" controls loop autoplay="autoplay" muted="" preload="" playsinline="" width="75%">
+        <source src="./static/images/full_dog_stopmotion.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+</section> -->
+
+<section class="section" id="Acknowledgements">
+  <div class="container is-max-desktop content has-text-centered">
+    <h2 class="centered-text title is-3">Acknowledgements</h2>
+    <p>We thank Shira Bar-On for creating the figures and visualizations. We also thank Tomer Golany, Dani Lischinski, Asaf Shul, Shmuel Peleg, Bar Cavia, and Nadav Magar for their valuable feedback and discussions. Tal Reiss is supported by the Google PhD Fellowship.</p>
+
+    <p>We thank owners of images on this site (<a href="index.html#" data-bs-toggle="modal" data-bs-target="#attributionsModal">link for attributions</a>) for sharing their valuable assets.</p>
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content has-text-justified">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>
+      @article{reiss2026alterbute,
+          title={Alterbute: Editing Intrinsic Attributes of Objects in Images},
+          author={Reiss, Tal and Winter, Daniel and Cohen, Matan and Rav-Acha, Alex and Pritch, Yael and Shamir, Ariel and Hoshen, Yedid},
+          journal={arXiv preprint arXiv:2601.10714},
+          year={2026}
+        }
+    </code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="https://arxiv.org/pdf/2601.10714">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/talreiss/" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-justified">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            Website source code based on the <a href="https://github.com/nerfies/nerfies.github.io/tree/main">Nerfies</a> project page. If you want to reuse their source code, please credit them appropriately.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- add modal for attributions -->
+<div class="modal fade" id="attributionsModal" tabindex="-1" aria-labelledby="attributionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="attributionsModalLabel">Image attributions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- <p>https://unsplash.com/photos/a-white-jeep-parked-in-a-parking-lot-T8UR7b04onw</p> -->
+        <ul id="attribution-links" class="list-group">
+          <!-- Example item: -->
+          <li class="list-group-item"><a href="https://unsplash.com/photos/a-white-jeep-parked-in-a-parking-lot-T8UR7b04onw" target="_blank" rel="noopener">https://unsplash.com/photos/a-white-jeep-parked-in-a-parking-lot-T8UR7b04onw</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/red-audi-coupe-on-road-near-trees-at-daytime-xpcUYaZtplI" target="_blank" rel="noopener">https://unsplash.com/photos/red-audi-coupe-on-road-near-trees-at-daytime-xpcUYaZtplI</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/a-blue-chair-and-a-yellow-lamp-in-a-white-room-hE0nmTffKtM" target="_blank" rel="noopener">https://unsplash.com/photos/a-blue-chair-and-a-yellow-lamp-in-a-white-room-hE0nmTffKtM</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/the-interior-has-room-a-armchair-and-cabinet-book-on-empty-white-wall-background3d-rendering-T3id0-3bJtQ" target="_blank" rel="noopener">https://unsplash.com/photos/the-interior-has-room-a-armchair-and-cabinet-book-on-empty-white-wall-background3d-rendering-T3id0-3bJtQ</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/pink-living-room-interior-with-a-vertical-framed-poster-hanging-above-a-yellow-armchair-3d-rendering-mock-up-HlBSNkTxVpo" target="_blank" rel="noopener">https://unsplash.com/photos/pink-living-room-interior-with-a-vertical-framed-poster-hanging-above-a-yellow-armchair-3d-rendering-mock-up-HlBSNkTxVpo</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/a-glass-and-chrome-coffee-table-on-a-white-background-O-uIrR1DIhw" target="_blank" rel="noopener">https://unsplash.com/photos/a-glass-and-chrome-coffee-table-on-a-white-background-O-uIrR1DIhw</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/a-car-parked-on-the-side-of-a-street-tRayMXq3TzI" target="_blank" rel="noopener">https://unsplash.com/photos/a-car-parked-on-the-side-of-a-street-tRayMXq3TzI</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/parked-teal-volkswagen-beetle-coupe-beside-wall-CygAq2f5xoc" target="_blank" rel="noopener">https://unsplash.com/photos/parked-teal-volkswagen-beetle-coupe-beside-wall-CygAq2f5xoc</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/yellow-banana-fruit-on-white-textile-aJh9dBunFDs" target="_blank" rel="noopener">https://unsplash.com/photos/yellow-banana-fruit-on-white-textile-aJh9dBunFDs</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/pink-carnation-flower-FjwtL3YSZ9U" target="_blank" rel="noopener">https://unsplash.com/photos/pink-carnation-flower-FjwtL3YSZ9U</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/halloween-pumpkins-and-decorations-outdoors-CgTVWKNtsgc" target="_blank" rel="noopener">https://unsplash.com/photos/halloween-pumpkins-and-decorations-outdoors-CgTVWKNtsgc</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/brown-wooden-framed-mirror-on-white-wall-g3KbcDWrBUM" target="_blank" rel="noopener">https://unsplash.com/photos/brown-wooden-framed-mirror-on-white-wall-g3KbcDWrBUM</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/black-and-red-triangle-illustration-nc11Hg2ja-s" target="_blank" rel="noopener">https://unsplash.com/photos/black-and-red-triangle-illustration-nc11Hg2ja-s</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/person-in-white-pants-and-white-sneakers-standing-on-black-and-red-carpet-RwfoOIv2g4A" target="_blank" rel="noopener">https://unsplash.com/photos/person-in-white-pants-and-white-sneakers-standing-on-black-and-red-carpet-RwfoOIv2g4A</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/clear-crystal--XvhrIC1Mhc" target="_blank" rel="noopener">https://unsplash.com/photos/clear-crystal--XvhrIC1Mhc</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/a-close-up-view-of-a-pink-carpet-LnBo8a-bHEo" target="_blank" rel="noopener">https://unsplash.com/photos/a-close-up-view-of-a-pink-carpet-LnBo8a-bHEo</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/white-textile-on-brown-wooden-table-_kUxT8WkoeY" target="_blank" rel="noopener">https://unsplash.com/photos/white-textile-on-brown-wooden-table-_kUxT8WkoeY</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/black-and-brown-leopard-print-garment-0DqYWHY4GpA" target="_blank" rel="noopener">https://unsplash.com/photos/black-and-brown-leopard-print-garment-0DqYWHY4GpA</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/red-white-and-black-plaid-textile-DklaS1faCkI" target="_blank" rel="noopener">https://unsplash.com/photos/red-white-and-black-plaid-textile-DklaS1faCkI</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/clear-glass-round-ornament-on-gray-stone-tvD7W6yXI1I" target="_blank" rel="noopener">https://unsplash.com/photos/clear-glass-round-ornament-on-gray-stone-tvD7W6yXI1I</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/a-close-up-view-of-a-brown-surface-KsAo8ouBn8A" target="_blank" rel="noopener">https://unsplash.com/photos/a-close-up-view-of-a-brown-surface-KsAo8ouBn8A</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/yellow-textile-SG59-rbcNRg" target="_blank" rel="noopener">https://unsplash.com/photos/yellow-textile-SG59-rbcNRg</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/brown-sand-with-shadow-of-person-TlrVTwdg7LA" target="_blank" rel="noopener">https://unsplash.com/photos/brown-sand-with-shadow-of-person-TlrVTwdg7LA</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/white-and-brown-long-haired-dog-KCoCB27h15Y" target="_blank" rel="noopener">https://unsplash.com/photos/white-and-brown-long-haired-dog-KCoCB27h15Y</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/a-close-up-of-a-white-marble-wall-tqu0IOMaiU8" target="_blank" rel="noopener">https://unsplash.com/photos/a-close-up-of-a-white-marble-wall-tqu0IOMaiU8</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/brown-and-black-snake-on-brown-sand-in8CoZMm8io" target="_blank" rel="noopener">https://unsplash.com/photos/brown-and-black-snake-on-brown-sand-in8CoZMm8io</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/a-tie-dyed-picture-of-a-colorful-flower-IDrszn-j45U" target="_blank" rel="noopener">https://unsplash.com/photos/a-tie-dyed-picture-of-a-colorful-flower-IDrszn-j45U</a></li>
+          <li class="list-group-item"><a href="https://unsplash.com/photos/burning-wood-x3S1aGQNgro" target="_blank" rel="noopener">https://unsplash.com/photos/burning-wood-x3S1aGQNgro</a></li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="button is-light btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>

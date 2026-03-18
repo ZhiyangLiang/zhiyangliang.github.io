@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="description" content="LACON studies how to train text-to-image models directly from uncurated data by turning quality signals into explicit conditioning labels.">
+  <meta name="keywords" content="Text-to-Image, Diffusion Model, Uncurated Data, Data Quality, Image Generation">
+  <meta property="og:title" content="LACON: Training Text-to-Image Model from Uncurated Data">
+  <meta property="og:description" content="Training text-to-image models from uncurated data with quality-aware labeling and conditioning.">
+  <meta property="og:image" content="static/Vis_Cases/teaser.png">
+  <title>LACON: Training Text-to-Image Model from Uncurated Data</title>
+
+  <link rel="icon" type="image/jpeg" href="static/Vis_Cases/icon.jpg?v=20260317-4">
+  <link rel="stylesheet" href="static/css/index.css?v=20260318-4">
+  <script defer src="static/js/index.js?v=20260318-2"></script>
+</head>
+<body>
+  <section class="hero-section" id="home">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center">
+          <h1 class="project-title">LACON: Training Text-to-Image Model from Uncurated Data</h1>
+          <div class="author-links mx-auto">
+            <h5 class="mb-3">
+              <a href="https://scholar.google.com/" target="_blank" rel="noopener">Zhiyang Liang</a><sup>1, 2</sup>,
+              <a href="https://scholar.google.com/" target="_blank" rel="noopener">Ziyu Wan</a><sup>2</sup>,
+              <a href="https://scholar.google.com/" target="_blank" rel="noopener">Hongyu Liu</a><sup>4</sup>,
+              <br>
+              <a href="https://scholar.google.com/" target="_blank" rel="noopener">Dong Chen</a><sup>3</sup>,
+              <a href="https://scholar.google.com/" target="_blank" rel="noopener">Qiu Shen</a><sup>1</sup>,
+              <a href="https://scholar.google.com/" target="_blank" rel="noopener">Hao Zhu</a><sup>1</sup>,
+              <a href="https://scholar.google.com/" target="_blank" rel="noopener">Dongdong Chen</a><sup>2</sup>
+            </h5>
+            <h6 class="mb-0">
+              <sup>1</sup>Nanjing University, <sup>2</sup>Microsoft Research, <sup>3</sup>Microsoft Research Asia, <sup>4</sup>HKUST
+            </h6>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-actions text-center mt-4">
+        <a href="https://arxiv.org/" class="btn btn-dark mx-2 my-2 hero-action-button" target="_blank" rel="noopener">
+          <span class="hero-button-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M6 2.75h8.5L20.25 8.5v12.75a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-17.5a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M14.5 2.75V8.5h5.75" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M8 13.25h8M8 16.75h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="button-label-prefix">Paper</span>
+        </a>
+        <a href="https://github.com/" class="btn btn-dark mx-2 my-2 hero-action-button" target="_blank" rel="noopener">
+          <span class="hero-button-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 2.5a9.5 9.5 0 0 0-3 18.52c.48.09.66-.2.66-.46v-1.62c-2.68.58-3.24-1.14-3.24-1.14-.44-1.1-1.06-1.39-1.06-1.39-.87-.59.07-.58.07-.58.95.07 1.45.97 1.45.97.86 1.44 2.24 1.03 2.79.79.08-.61.33-1.03.61-1.27-2.14-.24-4.39-1.05-4.39-4.7 0-1.04.38-1.89.99-2.56-.1-.25-.43-1.23.1-2.56 0 0 .81-.25 2.66.98A9.45 9.45 0 0 1 12 7.3c.84 0 1.68.11 2.47.33 1.85-1.23 2.66-.98 2.66-.98.53 1.33.2 2.31.1 2.56.62.67.99 1.52.99 2.56 0 3.66-2.26 4.45-4.42 4.69.35.3.66.88.66 1.78v2.32c0 .26.18.56.67.46A9.5 9.5 0 0 0 12 2.5Z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="button-label-prefix">Code</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-4">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <div class="card content-card teaser-card">
+            <div class="card-body">
+              <figure class="teaser-figure">
+                <img src="static/Vis_Cases/teaser.png" alt="Teaser image for LACON" class="img-fluid">
+              </figure>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="abstract" class="py-5">
+    <div class="container">
+      <div class="section-heading text-center">
+        <h2>Abstract</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="card content-card">
+            <div class="card-body">
+              <p class="text-justify mb-0">
+                The success of modern text-to-image generation is largely attributed to massive, high-quality datasets. Currently, these datasets are curated through a filter-first paradigm that aggressively discards low-quality raw data based on the assumption that it is detrimental to model performance. Is the discarded bad data truly useless, or does it hold untapped potential? In this work, we critically re-examine this question. We propose LACON (Labeling-and-Conditioning), a novel training framework that exploits the underlying uncurated data distribution. Instead of filtering, LACON re-purposes quality signals, such as aesthetic scores and watermark probabilities as explicit, quantitative condition labels. The generative model is then trained to learn the full spectrum of data quality, from bad to good. By learning the explicit boundary between high- and low-quality content, LACON achieves superior generation quality compared to baselines trained only on filtered data using the same compute budget, proving the significant value of uncurated data.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="signal-visualizations" class="py-5 section-muted">
+    <div class="container">
+      <div class="section-heading text-center">
+        <h2>Signal-Control Visualizations</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-xl-11">
+          <div class="card content-card signal-card">
+            <div class="card-body">
+              <div class="signal-selector-switch" role="group" aria-label="Quality signal selector">
+                <button class="signal-selector-button is-active" type="button" data-signal="aes" aria-pressed="true">Aesthetic</button>
+                <button class="signal-selector-button" type="button" data-signal="wat" aria-pressed="false">Watermark</button>
+                <button class="signal-selector-button" type="button" data-signal="cla" aria-pressed="false">Clarity</button>
+                <button class="signal-selector-button" type="button" data-signal="ent" aria-pressed="false">Entropy</button>
+                <button class="signal-selector-button" type="button" data-signal="luma" aria-pressed="false">Luminance</button>
+              </div>
+
+              <div class="signal-viewer" data-default-level="low" data-current-level="low" data-current-signal="aes">
+                <div class="signal-viewer-frame">
+                  <button class="signal-nav signal-nav-prev" type="button" aria-label="Show previous signal">
+                    <span aria-hidden="true">&#10094;</span>
+                  </button>
+                  <figure class="signal-viewer-figure">
+                    <img
+                      class="signal-viewer-image"
+                      src="static/Vis_Cases/low_aes.png"
+                      alt="Aesthetic Quality with low control strength"
+                    >
+                  </figure>
+                  <button class="signal-nav signal-nav-next" type="button" aria-label="Show next signal">
+                    <span aria-hidden="true">&#10095;</span>
+                  </button>
+                </div>
+
+                <div class="signal-viewer-meta">
+                  <h3 class="signal-viewer-title">
+                    <span class="signal-viewer-prefix">Quality Signal:</span>
+                    <span class="signal-viewer-title-value">Aesthetic Quality</span>
+                  </h3>
+                  <p class="signal-viewer-caption">Low control strength</p>
+                </div>
+
+                <div class="signal-level-switch" role="group" aria-label="Control strength selector">
+                  <button class="signal-level-button is-active" type="button" data-level="low" aria-pressed="true">Low</button>
+                  <button class="signal-level-button" type="button" data-level="medium" aria-pressed="false">Medium</button>
+                  <button class="signal-level-button" type="button" data-level="high" aria-pressed="false">High</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="lacon-pipeline" class="py-5">
+    <div class="container">
+      <div class="section-heading text-center">
+        <h2>Labeling-and-Conditioning (LACON)</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-xl-11">
+          <div class="card content-card">
+            <div class="card-body">
+              <figure class="pipeline-figure mb-0">
+                <img src="static/Vis_Cases/Pipeline.png" alt="LACON pipeline overview" class="img-fluid" loading="lazy">
+                <figcaption class="pipeline-caption">
+                  <strong>Overview of LACON.</strong> High-level training pipeline that repurposes quality signals as explicit attribute conditioning during training.
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="bibtex" class="py-5 bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <div class="text-center mb-4">
+            <h2>BibTeX</h2>
+            <div class="section-divider my-3"></div>
+          </div>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <pre class="bibtex-block mb-0"><code>
+@article{liang2026lacon,
+  title={LACON: Training Text-to-Image Model from Uncurated Data},
+  author={Liang, Zhiyang and Wan, Ziyu and Liu, Hongyu and Chen, Dong and Shen, Qiu and Zhu, Hao and Chen, Dongdong},
+  journal={arXiv preprint arXiv:},
+  year={2026}
+}
+              </code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="project-footer">
+    <div class="container text-center">
+      <div class="footer-actions">
+        <a class="footer-btn" href="https://arxiv.org/" target="_blank" rel="noopener">
+          <span class="icon-container" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M6 2.75h8.5L20.25 8.5v12.75a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-17.5a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M14.5 2.75V8.5h5.75" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M8 13.25h8M8 16.75h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span>Paper</span>
+        </a>
+        <a class="footer-btn" href="https://github.com/" target="_blank" rel="noopener">
+          <span class="icon-container" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 2.5a9.5 9.5 0 0 0-3 18.52c.48.09.66-.2.66-.46v-1.62c-2.68.58-3.24-1.14-3.24-1.14-.44-1.1-1.06-1.39-1.06-1.39-.87-.59.07-.58.07-.58.95.07 1.45.97 1.45.97.86 1.44 2.24 1.03 2.79.79.08-.61.33-1.03.61-1.27-2.14-.24-4.39-1.05-4.39-4.7 0-1.04.38-1.89.99-2.56-.1-.25-.43-1.23.1-2.56 0 0 .81-.25 2.66.98A9.45 9.45 0 0 1 12 7.3c.84 0 1.68.11 2.47.33 1.85-1.23 2.66-.98 2.66-.98.53 1.33.2 2.31.1 2.56.62.67.99 1.52.99 2.56 0 3.66-2.26 4.45-4.42 4.69.35.3.66.88.66 1.78v2.32c0 .26.18.56.67.46A9.5 9.5 0 0 0 12 2.5Z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span>Code</span>
+        </a>
+      </div>
+      <p class="footer-note mb-0">
+        Page style adapted from the HuaPi project page. If you reuse this source, please keep the corresponding template credits.
+      </p>
+    </div>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" type="button" aria-label="Back to top">
+    <span aria-hidden="true">↑</span>
+  </button>
+</body>
+</html>
